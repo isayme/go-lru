@@ -11,7 +11,7 @@ func TestLRU(t *testing.T) {
 
 	t.Run("normal", func(t *testing.T) {
 		l := New(11)
-		require.Equal(11, l.maxSize)
+		require.Equal(11, l.size)
 		require.Len(l.cache, 0)
 		require.Len(l.oldCache, 0)
 
@@ -33,13 +33,12 @@ func TestLRU(t *testing.T) {
 
 		l.Set("remove", "v")
 		require.True(l.Has("remove"))
-		require.Equal(2, l.size)
+		require.Len(l.cache, 2)
 		l.Remove("remove")
 		require.False(l.Has("remove"))
-		require.Equal(1, l.size)
+		require.Len(l.cache, 1)
 
 		l.Clear()
-		require.Equal(l.size, 0)
 		require.Len(l.cache, 0)
 		require.Len(l.oldCache, 0)
 	})
@@ -50,21 +49,17 @@ func TestLRU(t *testing.T) {
 		l.Set(1, 1)
 		require.Len(l.cache, 1)
 		require.Len(l.oldCache, 0)
-		require.Equal(1, l.size)
 		l.Set(2, 2)
 		require.Len(l.cache, 0)
 		require.Len(l.oldCache, 2)
-		require.Equal(0, l.size)
 		l.Set(3, 3)
 		require.Len(l.cache, 1)
 		require.Len(l.oldCache, 2)
-		require.Equal(1, l.size)
 		_, ok := l.cache[3]
 		require.True(ok)
 
 		l.Get(1)
 		require.Len(l.cache, 0)
-		require.Equal(0, l.size)
 		require.Len(l.oldCache, 2)
 		_, ok = l.oldCache[1]
 		require.True(ok)
@@ -78,26 +73,21 @@ func TestLRU(t *testing.T) {
 		l.Set(1, 1)
 		require.Len(l.cache, 1)
 		require.Len(l.oldCache, 0)
-		require.Equal(1, l.size)
 		l.Set(2, 2)
 		require.Len(l.cache, 0)
 		require.Len(l.oldCache, 2)
-		require.Equal(0, l.size)
 		l.Set(3, 3)
 		require.Len(l.cache, 1)
 		require.Len(l.oldCache, 2)
-		require.Equal(1, l.size)
 		_, ok := l.cache[3]
 		require.True(ok)
 
 		l.Remove(1)
 		require.Len(l.cache, 1)
 		require.Len(l.oldCache, 1)
-		require.Equal(1, l.size)
 
 		l.Remove(3)
 		require.Len(l.cache, 0)
 		require.Len(l.oldCache, 1)
-		require.Equal(0, l.size)
 	})
 }

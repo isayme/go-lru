@@ -1,7 +1,6 @@
 package lru
 
 type LRU struct {
-	maxSize  int
 	size     int
 	cache    map[interface{}]interface{}
 	oldCache map[interface{}]interface{}
@@ -9,24 +8,18 @@ type LRU struct {
 
 func New(size int) *LRU {
 	l := &LRU{
-		maxSize: size,
+		size: size,
 	}
 	l.Clear()
 	return l
 }
 
 func (l *LRU) Set(key, value interface{}) {
-	if _, ok := l.cache[key]; ok {
-		l.cache[key] = value
-	}
-
 	l.cache[key] = value
-	l.size++
 
-	if l.size >= l.maxSize {
+	if len(l.cache) >= l.size {
 		l.oldCache = l.cache
 		l.cache = map[interface{}]interface{}{}
-		l.size = 0
 	}
 }
 
@@ -69,16 +62,11 @@ func (l *LRU) Has(key interface{}) bool {
 }
 
 func (l *LRU) Remove(key interface{}) {
-	if _, ok := l.cache[key]; ok {
-		delete(l.cache, key)
-		l.size--
-	} else {
-		delete(l.oldCache, key)
-	}
+	delete(l.cache, key)
+	delete(l.oldCache, key)
 }
 
 func (l *LRU) Clear() {
 	l.cache = map[interface{}]interface{}{}
 	l.oldCache = map[interface{}]interface{}{}
-	l.size = 0
 }
